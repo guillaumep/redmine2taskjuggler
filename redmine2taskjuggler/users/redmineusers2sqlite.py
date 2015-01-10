@@ -4,8 +4,8 @@ and replace it with content from redmine
 """
 import string
 
-from redmine_factory import get_redmine
-from sqlite_factory import get_sqlite_connection 
+from redmine2taskjuggler.redmine_factory import get_redmine
+from redmine2taskjuggler.sqlite_factory import get_sqlite_connection 
 
 def get_redmine_users(redmine, limit=None):
     params = {}
@@ -23,7 +23,7 @@ def convert_id(s):
                 yield '_'
     return ''.join(_convert_id(s))
 
-if __name__ == '__main__':
+def main():
     redmine = get_redmine()
     conn = get_sqlite_connection()
     conn.execute("DELETE FROM users")
@@ -32,3 +32,6 @@ if __name__ == '__main__':
         conn.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)",
             (user.id, taskjuggler_id, user.firstname, user.lastname, user.mail))
     conn.commit()
+
+if __name__ == '__main__':
+    main()

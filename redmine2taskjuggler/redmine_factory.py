@@ -1,5 +1,5 @@
 from redmine import Redmine
-from config_reader import get_config
+from redmine2taskjuggler.config_reader import get_config
 
 _redmine = None
 

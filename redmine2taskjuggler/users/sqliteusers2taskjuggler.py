@@ -1,8 +1,8 @@
 import codecs
 import argparse
-import taskjuggler
 
-from sqlite_factory import get_sqlite_connection
+from redmine2taskjuggler import taskjuggler
+from redmine2taskjuggler.sqlite_factory import get_sqlite_connection
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -17,7 +17,7 @@ def get_users(conn):
         yield row
     conn.commit()
 
-if __name__ == '__main__':
+def main():
     args = parse_args()
     conn = get_sqlite_connection()
     with codecs.open(args.output, 'w', encoding='utf8') as tjout:
@@ -29,3 +29,6 @@ if __name__ == '__main__':
                 email=user['email'])
             tjout.write(resource.to_taskjuggler_language())
             tjout.write('\n')
+
+if __name__ == '__main__':
+    main()
