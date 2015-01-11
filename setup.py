@@ -18,5 +18,7 @@ setup(name='redmine2taskjuggler',
       [console_scripts]
       redmineusers2sqlite = redmine2taskjuggler.users.redmineusers2sqlite:main
       sqliteusers2taskjuggler = redmine2taskjuggler.users.sqliteusers2taskjuggler:main
+      redmineissues2sqlite = redmine2taskjuggler.issues.redmineissues2sqlite:main
+      sqliteissues2taskjuggler = redmine2taskjuggler.issues.sqliteissues2taskjuggler:main
       """,
       )

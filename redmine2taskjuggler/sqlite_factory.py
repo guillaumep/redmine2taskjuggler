@@ -14,6 +14,19 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """
 
+CREATE_ISSUES_TABLE = """\
+CREATE TABLE IF NOT EXISTS issues (
+    redmine_id INTEGER PRIMARY KEY ASC,
+    taskjuggler_id TEXT,
+    subject TEXT,
+    assigned_to INTEGER,
+    estimated_hours REAL,
+    done_ratio INTEGER,
+    due_date INTEGER,
+    updated_on INTEGER
+)
+"""
+
 def get_sqlite_connection():
     config = get_config()
     conn = sqlite3.connect(config['sqlite']['dbname'])
@@ -21,6 +34,7 @@ def get_sqlite_connection():
     global DB_INITIALIZED
     if not DB_INITIALIZED:
         conn.execute(CREATE_USERS_TABLE)
+        conn.execute(CREATE_ISSUES_TABLE)
         DB_INITIALIZED = True
 
     # https://docs.python.org/2/library/sqlite3.html#sqlite3.Row
