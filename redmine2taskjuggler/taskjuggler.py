@@ -1,6 +1,8 @@
 import string
 from redmine2taskjuggler.config_reader import get_config
 
+IDENTATION = 4
+
 def email_to_taskjuggler_id(email):
     if email is None:
         return None
@@ -52,23 +54,25 @@ class Task:
     def taskjuggler_id(self):
         return get_config()['taskjuggler']['task_id_prefix'] + str(self.id)
 
-    def to_taskjuggler_language(self):
+    def to_taskjuggler_language(self, depth=0):
         attributes = ""
         if self.children:
             for child in self.children:
-                attributes += child.to_taskjuggler_language()
+                attributes += child.to_taskjuggler_language(depth=depth + 1)
         else:
+            ident = ' ' * (depth + 1) * IDENTATION
             if self.effort:
-                attributes += "    effort %sh\n" % self.effort
+                attributes += "%seffort %sh\n" % (ident, self.effort)
             if self.assignee:
-                attributes += "    allocate %s\n" % self.assignee
+                attributes += "%sallocate %s\n" % (ident, self.assignee)
 
         output = u"""\
-task %(id)s '%(name)s' {
-%(attributes)s}
+%(ident)stask %(id)s '%(name)s' {
+%(attributes)s%(ident)s}
 """     % dict(id=self.taskjuggler_id,
                name=quoted_string(self.name),
-               attributes=attributes)
+               attributes=attributes,
+               ident=' ' * depth * IDENTATION)
 
         return output
 
