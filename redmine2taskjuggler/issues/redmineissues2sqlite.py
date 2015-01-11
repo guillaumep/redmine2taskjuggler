@@ -21,26 +21,32 @@ def get_optional_field(issue, field):
     else:
         return None
 
+def get_optional_field_id(issue, field):
+    field_value = get_optional_field(issue, field)
+    if field_value is not None:
+        return field_value.id
+    else:
+        return None
+
+def insert_issue(issue, conn, conf):
+    conn.execute("INSERT INTO issue VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (issue.id,
+         get_optional_field_id(issue, 'parent'),
+         issue.subject,
+         get_optional_field_id(issue, 'assigned_to'),
+         get_optional_field(issue, 'estimated_hours'),
+         issue.done_ratio,
+         get_optional_field(issue, 'due_date'),
+         issue.updated_on))
+
+
 def main():
     redmine = get_redmine()
     conf = get_config()
     conn = get_sqlite_connection()
-    conn.execute("DELETE FROM issues")
+    conn.execute("DELETE FROM issue")
     for issue in get_redmine_issues(redmine):
-        taskjuggler_id = conf['taskjuggler']['task_id_suffix'] + str(issue.id)
-        assigned_to = None
-        issue_assigned_to = get_optional_field(issue, 'assigned_to')
-        if issue_assigned_to is not None:
-            assigned_to = issue_assigned_to.id
-        conn.execute("INSERT INTO issues VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (issue.id,
-             taskjuggler_id,
-             issue.subject,
-             assigned_to,
-             get_optional_field(issue, 'estimated_hours'),
-             issue.done_ratio, 
-             get_optional_field(issue, 'due_date'),
-             issue.updated_on))
+        insert_issue(issue, conn, conf)
     conn.commit()
 
 if __name__ == '__main__':

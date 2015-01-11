@@ -4,20 +4,19 @@ from config_reader import get_config
 
 DB_INITIALIZED = False
 
-CREATE_USERS_TABLE = """\
-CREATE TABLE IF NOT EXISTS users (
-    redmine_id INTEGER PRIMARY KEY ASC,
-    taskjuggler_id TEXT,
+CREATE_USER_TABLE = """\
+CREATE TABLE IF NOT EXISTS user (
+    id INTEGER PRIMARY KEY ASC,
     first_name TEXT,
     last_name TEXT,
     email TEXT
 )
 """
 
-CREATE_ISSUES_TABLE = """\
-CREATE TABLE IF NOT EXISTS issues (
-    redmine_id INTEGER PRIMARY KEY ASC,
-    taskjuggler_id TEXT,
+CREATE_ISSUE_TABLE = """\
+CREATE TABLE IF NOT EXISTS issue (
+    id INTEGER PRIMARY KEY ASC,
+    parent_id INTEGER,
     subject TEXT,
     assigned_to INTEGER,
     estimated_hours REAL,
@@ -33,8 +32,8 @@ def get_sqlite_connection():
 
     global DB_INITIALIZED
     if not DB_INITIALIZED:
-        conn.execute(CREATE_USERS_TABLE)
-        conn.execute(CREATE_ISSUES_TABLE)
+        conn.execute(CREATE_USER_TABLE)
+        conn.execute(CREATE_ISSUE_TABLE)
         DB_INITIALIZED = True
 
     # https://docs.python.org/2/library/sqlite3.html#sqlite3.Row

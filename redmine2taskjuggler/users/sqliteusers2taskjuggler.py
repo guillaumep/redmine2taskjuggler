@@ -12,7 +12,7 @@ def parse_args():
 
 def get_users(conn):
     curs = conn.cursor()
-    curs.execute("SELECT * FROM users")
+    curs.execute("SELECT * FROM user")
     for row in curs:
         yield row
     conn.commit()
@@ -25,10 +25,20 @@ def main():
             resource_name = user['first_name'] + ' ' + user['last_name']
             resource_name = resource_name.strip()
             resource = taskjuggler.Resource(
-                id=user['taskjuggler_id'], name=resource_name,
+                id=user['id'],
+                name=resource_name,
                 email=user['email'])
             tjout.write(resource.to_taskjuggler_language())
             tjout.write('\n')
+
+        # Special resource: not assigned
+        resource = taskjuggler.Resource(
+            id=0,
+            name='Not assigned',
+            email='not_assigned'
+        )
+        tjout.write(resource.to_taskjuggler_language())
+        tjout.write('\n')
 
 if __name__ == '__main__':
     main()
