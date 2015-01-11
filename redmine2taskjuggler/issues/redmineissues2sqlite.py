@@ -28,25 +28,33 @@ def get_optional_field_id(issue, field):
     else:
         return None
 
-def insert_issue(issue, conn, conf):
-    conn.execute("INSERT INTO issue VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (issue.id,
-         get_optional_field_id(issue, 'parent'),
-         issue.subject,
-         get_optional_field_id(issue, 'assigned_to'),
-         get_optional_field(issue, 'estimated_hours'),
-         issue.done_ratio,
-         get_optional_field(issue, 'due_date'),
-         issue.updated_on))
-
-
 def main():
     redmine = get_redmine()
     conf = get_config()
     conn = get_sqlite_connection()
     conn.execute("DELETE FROM issue")
+    conn.execute("DELETE FROM milestone")
+    milestones = {}
     for issue in get_redmine_issues(redmine):
-        insert_issue(issue, conn, conf)
+        milestone = get_optional_field(issue, 'fixed_version')
+        if milestone:
+            if milestone.id not in milestones:
+                milestones[milestone.id] = milestone.name
+        conn.execute("INSERT INTO issue VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (issue.id,
+             get_optional_field_id(issue, 'parent'),
+             milestone.id if milestone else None,
+             issue.subject,
+             get_optional_field_id(issue, 'assigned_to'),
+             get_optional_field(issue, 'estimated_hours'),
+             issue.done_ratio,
+             get_optional_field(issue, 'due_date'),
+             issue.updated_on))
+
+    for id, name in milestones.iteritems():
+        conn.execute("INSERT INTO milestone VALUES (?, ?)",
+            (id, name))
+
     conn.commit()
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ def main():
             resource_name = user['first_name'] + ' ' + user['last_name']
             resource_name = resource_name.strip()
             resource = taskjuggler.Resource(
-                id=user['id'],
+                id=taskjuggler.email_to_taskjuggler_id(user['email']),
                 name=resource_name,
                 email=user['email'])
             tjout.write(resource.to_taskjuggler_language())
@@ -33,9 +33,9 @@ def main():
 
         # Special resource: not assigned
         resource = taskjuggler.Resource(
-            id=0,
+            id='not_assigned',
             name='Not assigned',
-            email='not_assigned'
+            email=None
         )
         tjout.write(resource.to_taskjuggler_language())
         tjout.write('\n')

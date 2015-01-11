@@ -30,7 +30,7 @@ class Resource:
 
     @property
     def taskjuggler_id(self):
-        return email_to_taskjuggler_id(self.email)
+        return str(self.id)
 
     def to_taskjuggler_language(self):
         output = u"""\
@@ -42,29 +42,39 @@ resource %(id)s '%(name)s'
         return output
 
 class Task:
-    def __init__(self, id, name, effort, assignee=None):
+    def __init__(self, id, name, effort, assignee=None, priority=None,
+                 scheduling=None, end_date=None):
         self.id = id
         self.name = name
         self.effort = effort # in hours
         self.assignee = assignee
+        self.priority = priority
+        self.scheduling = scheduling
+        self.end_date = end_date
         self.parent = None
         self.children = []
 
     @property
     def taskjuggler_id(self):
-        return get_config()['taskjuggler']['task_id_prefix'] + str(self.id)
+        return self.id
 
-    def to_taskjuggler_language(self, depth=0):
+    def to_taskjuggler_language(self, depth=1):
         attributes = ""
+        ident = ' ' * (depth + 1) * IDENTATION
+        if self.priority:
+            attributes += "%spriority %s\n" % (ident, self.priority)
+        if self.scheduling:
+            attributes += "%sscheduling %s\n" % (ident, self.scheduling)
         if self.children:
             for child in self.children:
                 attributes += child.to_taskjuggler_language(depth=depth + 1)
         else:
-            ident = ' ' * (depth + 1) * IDENTATION
             if self.effort:
                 attributes += "%seffort %sh\n" % (ident, self.effort)
             if self.assignee:
                 attributes += "%sallocate %s\n" % (ident, self.assignee)
+            if self.end_date:
+                attributes += "%send %s\n" % (ident, self.end_date.strftime('%Y-%m-%d'))
 
         output = u"""\
 %(ident)stask %(id)s '%(name)s' {
